@@ -273,6 +273,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { ThemeToggle } from "./components/ThemeToggle";
 
 export default function App() {
   // Existing state
@@ -357,7 +358,10 @@ export default function App() {
             <div className="p-8 space-y-12 max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-8">
               <h1 className="text-4xl font-bold">EFC UI Library - All Components</h1>
-              <SidebarTrigger className="lg:hidden" />
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <SidebarTrigger className="lg:hidden" />
+              </div>
             </div>
 
             {/* Existing Components */}
