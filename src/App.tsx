@@ -220,6 +220,8 @@ import {
   TableHead,
   TableCell,
   TableCaption,
+  DropdownSorter,
+  TableHeaderCell,
   Badge,
   Avatar,
   AvatarImage,
@@ -273,6 +275,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { MoreVertical } from "lucide-react";
 import { ThemeToggle } from "./components/ThemeToggle";
 
 export default function App() {
@@ -305,6 +308,149 @@ export default function App() {
   const [calendarDate, setCalendarDate] = useState<Date | undefined>(new Date());
   const [carouselApi, setCarouselApi] = useState<any>(null);
   const form = useForm();
+
+  // Table filter state
+  const [statusFilterIndex, setStatusFilterIndex] = useState(0);
+  const [roleFilterIndex, setRoleFilterIndex] = useState(0);
+  const [creditCardFilterIndex, setCreditCardFilterIndex] = useState(0);
+
+  // Filter options
+  const statusFilters = [
+    { label: "All", value: "all" },
+    { label: "Active", value: "active" },
+    { label: "Inactive", value: "inactive" },
+    { label: "Pending", value: "pending" },
+  ];
+
+  const roleFilters = [
+    { label: "All", value: "all" },
+    { label: "Admin", value: "admin" },
+    { label: "User", value: "user" },
+    { label: "Guest", value: "guest" },
+  ];
+
+  // Credit Card filters for nested menu (placeholder - actual selection handled in nested menu)
+  const creditCardFilters = [
+    { label: "All", value: "all" },
+  ];
+
+  // Nested menu structure for Credit Card column
+  const creditCardMenuCategories = [
+    {
+      label: "Profile",
+      items: [
+        { label: "Reference", value: "profile.reference" },
+        { label: "Gender", value: "profile.gender" },
+        { label: "Date Of Birth", value: "profile.dob" },
+        { label: "Age", value: "profile.age" },
+        { label: "Birthday", value: "profile.birthday" },
+        { label: "Groups", value: "profile.groups" },
+        { label: "Key Person", value: "profile.keyPerson" },
+        { label: "Campaign", value: "profile.campaign" },
+        { label: "Referrer", value: "profile.referrer" },
+        { label: "Notes", value: "profile.notes" },
+        { label: "Diet", value: "profile.diet" },
+        { label: "Allergies", value: "profile.allergies" },
+        { label: "Medical", value: "profile.medical" },
+        { label: "Forms Requested", value: "profile.formsRequested" },
+        { label: "Forms Completed", value: "profile.formsCompleted" },
+        { label: "Allow Photography", value: "profile.allowPhotography" },
+      ],
+    },
+    {
+      label: "Custom Properties",
+      items: [
+        { label: "Property 1", value: "custom.property1" },
+        { label: "Property 2", value: "custom.property2" },
+      ],
+    },
+    {
+      label: "Contact",
+      items: [
+        { label: "Email", value: "contact.email" },
+        { label: "Phone", value: "contact.phone" },
+        { label: "Address", value: "contact.address" },
+      ],
+    },
+    {
+      label: "Enrolment",
+      items: [
+        { label: "Status", value: "enrolment.status" },
+        { label: "Date", value: "enrolment.date" },
+        { label: "Program", value: "enrolment.program" },
+      ],
+    },
+    {
+      label: "Subscription",
+      items: [
+        { label: "Plan", value: "subscription.plan" },
+        { label: "Status", value: "subscription.status" },
+        { label: "Renewal Date", value: "subscription.renewalDate" },
+      ],
+    },
+    {
+      label: "Assessment",
+      items: [
+        { label: "Score", value: "assessment.score" },
+        { label: "Date", value: "assessment.date" },
+        { label: "Type", value: "assessment.type" },
+      ],
+    },
+    {
+      label: "Portal Access",
+      items: [
+        { label: "Username", value: "portal.username" },
+        { label: "Last Login", value: "portal.lastLogin" },
+        { label: "Access Level", value: "portal.accessLevel" },
+      ],
+    },
+  ];
+
+  // Filter handlers
+  const handleStatusFilter = (filter: { label: string; value: string }) => {
+    const index = statusFilters.findIndex((f) => f.value === filter.value);
+    setStatusFilterIndex(index >= 0 ? index : 0);
+    console.log("Status filter changed:", filter);
+  };
+
+  const handleRoleFilter = (filter: { label: string; value: string }) => {
+    const index = roleFilters.findIndex((f) => f.value === filter.value);
+    setRoleFilterIndex(index >= 0 ? index : 0);
+    console.log("Role filter changed:", filter);
+  };
+
+  const handleCreditCardFilter = (filter: { label: string; value: string }) => {
+    setCreditCardFilterIndex(0);
+    console.log("Credit Card filter changed:", filter);
+  };
+
+  // Table row selection state
+  const [isSelectAll, setSelectAll] = useState(false);
+  const [selectedRows, setSelectedRows] = useState<Record<number, boolean>>({
+    0: false,
+    1: false,
+  });
+
+  const handleSelectAll = (checked: boolean) => {
+    setSelectAll(checked);
+    setSelectedRows({
+      0: checked,
+      1: checked,
+    });
+  };
+
+  const handleRowSelect = (rowIndex: number, checked: boolean) => {
+    setSelectedRows((prev) => {
+      const updated = {
+        ...prev,
+        [rowIndex]: checked,
+      };
+      // Update select all based on all rows being selected
+      const allSelected = Object.values(updated).every((val) => val === true);
+      setSelectAll(allSelected);
+      return updated;
+    });
+  };
 
   const items = [
     "Apple",
@@ -1044,9 +1190,81 @@ export default function App() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Role</TableHead>
+                      <TableHeaderCell label="Name" type="simple" />
+                      <TableHeaderCell
+                        label="Status"
+                        type="dropdown"
+                        dropdownProps={{
+                          index: statusFilterIndex,
+                          filters: statusFilters,
+                          handle: handleStatusFilter,
+                        }}
+                        onFilterSort={(filterValue) => {
+                          console.log("Filter sort triggered:", filterValue);
+                        }}
+                      />
+                      <TableHeaderCell
+                        label="Role"
+                        type="dropdown"
+                        dropdownProps={{
+                          index: roleFilterIndex,
+                          filters: roleFilters,
+                          handle: handleRoleFilter,
+                        }}
+                        onFilterSort={(filterValue) => {
+                          console.log("Filter sort triggered:", filterValue);
+                        }}
+                      />
+                      <TableHeaderCell
+                        label="Credit Card"
+                        type="dropdown"
+                        dropdownProps={{
+                          index: creditCardFilterIndex,
+                          filters: creditCardFilters,
+                          handle: handleCreditCardFilter,
+                        }}
+                        onFilterSort={(filterValue) => {
+                          console.log("Filter sort triggered:", filterValue);
+                        }}
+                        dropdownChildren={
+                          <>
+                            {creditCardMenuCategories.map((category) => (
+                              <DropdownMenuSub key={category.label}>
+                                <DropdownMenuSubTrigger>{category.label}</DropdownMenuSubTrigger>
+                                <DropdownMenuSubContent>
+                                  {category.items.map((item) => (
+                                    <DropdownMenuItem
+                                      key={item.value}
+                                      onClick={() => handleCreditCardFilter(item)}
+                                    >
+                                      {item.label}
+                                    </DropdownMenuItem>
+                                  ))}
+                                </DropdownMenuSubContent>
+                              </DropdownMenuSub>
+                            ))}
+                          </>
+                        }
+                      />
+                      <TableHead className="flex items-center justify-end mr-2 space-x-2 print:hidden">
+                        <Checkbox
+                          checked={isSelectAll}
+                          onCheckedChange={(e) => {
+                            handleSelectAll(e === true);
+                          }}
+                        />
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem>Compose Email</DropdownMenuItem>
+                            <DropdownMenuItem>Compose SMS</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1054,11 +1272,51 @@ export default function App() {
                       <TableCell>John Doe</TableCell>
                       <TableCell>Active</TableCell>
                       <TableCell>Admin</TableCell>
+                      <TableCell>****1234</TableCell>
+                      <TableCell className="flex items-center justify-end mr-2 space-x-2 print:hidden">
+                        <Checkbox
+                          checked={selectedRows[0] || false}
+                          onCheckedChange={(e) => {
+                            handleRowSelect(0, e === true);
+                          }}
+                        />
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem>Edit Record</DropdownMenuItem>
+                            <DropdownMenuItem>Export Record</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Jane Smith</TableCell>
                       <TableCell>Active</TableCell>
                       <TableCell>User</TableCell>
+                      <TableCell>****5678</TableCell>
+                      <TableCell className="flex items-center justify-end mr-2 space-x-2 print:hidden">
+                        <Checkbox
+                          checked={selectedRows[1] || false}
+                          onCheckedChange={(e) => {
+                            handleRowSelect(1, e === true);
+                          }}
+                        />
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem>Edit Record</DropdownMenuItem>
+                            <DropdownMenuItem>Export Record</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
                     </TableRow>
                   </TableBody>
                   <TableCaption>A list of users.</TableCaption>
