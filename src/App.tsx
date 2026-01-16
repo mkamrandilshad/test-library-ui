@@ -222,6 +222,7 @@ import {
   TableCaption,
   DropdownSorter,
   TableHeaderCell,
+  CustomTable,
   Badge,
   Avatar,
   AvatarImage,
@@ -426,27 +427,19 @@ export default function App() {
 
   // Table row selection state
   const [isSelectAll, setSelectAll] = useState(false);
-  const [selectedRows, setSelectedRows] = useState<Record<number, boolean>>({
-    0: false,
-    1: false,
-  });
+  const [selectedRows, setSelectedRows] = useState<boolean[]>([false, false]);
 
   const handleSelectAll = (checked: boolean) => {
     setSelectAll(checked);
-    setSelectedRows({
-      0: checked,
-      1: checked,
-    });
+    setSelectedRows([checked, checked]);
   };
 
   const handleRowSelect = (rowIndex: number, checked: boolean) => {
     setSelectedRows((prev) => {
-      const updated = {
-        ...prev,
-        [rowIndex]: checked,
-      };
+      const updated = [...prev];
+      updated[rowIndex] = checked;
       // Update select all based on all rows being selected
-      const allSelected = Object.values(updated).every((val) => val === true);
+      const allSelected = updated.every((val) => val === true);
       setSelectAll(allSelected);
       return updated;
     });
@@ -1187,140 +1180,100 @@ export default function App() {
               
               <div className="space-y-4">
                 <h3 className="text-2xl font-semibold">Table</h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHeaderCell label="Name" type="simple" />
-                      <TableHeaderCell
-                        label="Status"
-                        type="dropdown"
-                        dropdownProps={{
-                          index: statusFilterIndex,
-                          filters: statusFilters,
-                          handle: handleStatusFilter,
-                        }}
-                        onFilterSort={(filterValue) => {
-                          console.log("Filter sort triggered:", filterValue);
-                        }}
-                      />
-                      <TableHeaderCell
-                        label="Role"
-                        type="dropdown"
-                        dropdownProps={{
-                          index: roleFilterIndex,
-                          filters: roleFilters,
-                          handle: handleRoleFilter,
-                        }}
-                        onFilterSort={(filterValue) => {
-                          console.log("Filter sort triggered:", filterValue);
-                        }}
-                      />
-                      <TableHeaderCell
-                        label="Credit Card"
-                        type="dropdown"
-                        dropdownProps={{
-                          index: creditCardFilterIndex,
-                          filters: creditCardFilters,
-                          handle: handleCreditCardFilter,
-                        }}
-                        onFilterSort={(filterValue) => {
-                          console.log("Filter sort triggered:", filterValue);
-                        }}
-                        dropdownChildren={
-                          <>
-                            {creditCardMenuCategories.map((category) => (
-                              <DropdownMenuSub key={category.label}>
-                                <DropdownMenuSubTrigger>{category.label}</DropdownMenuSubTrigger>
-                                <DropdownMenuSubContent>
-                                  {category.items.map((item) => (
-                                    <DropdownMenuItem
-                                      key={item.value}
-                                      onClick={() => handleCreditCardFilter(item)}
-                                    >
-                                      {item.label}
-                                    </DropdownMenuItem>
-                                  ))}
-                                </DropdownMenuSubContent>
-                              </DropdownMenuSub>
-                            ))}
-                          </>
-                        }
-                      />
-                      <TableHead className="flex items-center justify-end mr-2 space-x-2 print:hidden">
-                        <Checkbox
-                          checked={isSelectAll}
-                          onCheckedChange={(e) => {
-                            handleSelectAll(e === true);
-                          }}
-                        />
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem>Compose Email</DropdownMenuItem>
-                            <DropdownMenuItem>Compose SMS</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>John Doe</TableCell>
-                      <TableCell>Active</TableCell>
-                      <TableCell>Admin</TableCell>
-                      <TableCell>****1234</TableCell>
-                      <TableCell className="flex items-center justify-end mr-2 space-x-2 print:hidden">
-                        <Checkbox
-                          checked={selectedRows[0] || false}
-                          onCheckedChange={(e) => {
-                            handleRowSelect(0, e === true);
-                          }}
-                        />
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem>Edit Record</DropdownMenuItem>
-                            <DropdownMenuItem>Export Record</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Jane Smith</TableCell>
-                      <TableCell>Active</TableCell>
-                      <TableCell>User</TableCell>
-                      <TableCell>****5678</TableCell>
-                      <TableCell className="flex items-center justify-end mr-2 space-x-2 print:hidden">
-                        <Checkbox
-                          checked={selectedRows[1] || false}
-                          onCheckedChange={(e) => {
-                            handleRowSelect(1, e === true);
-                          }}
-                        />
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem>Edit Record</DropdownMenuItem>
-                            <DropdownMenuItem>Export Record</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                  <TableCaption>A list of users.</TableCaption>
-                </Table>
+                {(() => {
+                  // Table data
+                  const tableData = [
+                    { name: "John Doe", status: "Active", role: "Admin", creditCard: "****1234" },
+                    { name: "Jane Smith", status: "Active", role: "User", creditCard: "****5678" }
+                  ];
+
+                  // Column definitions
+                  const columns = [
+                    {
+                      key: "name",
+                      label: "Name",
+                      type: "simple" as const,
+                    },
+                    {
+                      key: "status",
+                      label: "Status",
+                      type: "dropdown" as const,
+                      filters: statusFilters,
+                      currentFilterIndex: statusFilterIndex,
+                      onFilterChange: handleStatusFilter,
+                      onFilterSort: (filterValue: string) => {
+                        console.log("Filter sort triggered:", filterValue);
+                      },
+                    },
+                    {
+                      key: "role",
+                      label: "Role",
+                      type: "dropdown" as const,
+                      filters: roleFilters,
+                      currentFilterIndex: roleFilterIndex,
+                      onFilterChange: handleRoleFilter,
+                      onFilterSort: (filterValue: string) => {
+                        console.log("Filter sort triggered:", filterValue);
+                      },
+                    },
+                    {
+                      key: "creditCard",
+                      label: "Credit Card",
+                      type: "dropdown" as const,
+                      filters: creditCardFilters,
+                      currentFilterIndex: creditCardFilterIndex,
+                      onFilterChange: handleCreditCardFilter,
+                      onFilterSort: (filterValue: string) => {
+                        console.log("Filter sort triggered:", filterValue);
+                      },
+                      dropdownChildren: (
+                        <>
+                          {creditCardMenuCategories.map((category) => (
+                            <DropdownMenuSub key={category.label}>
+                              <DropdownMenuSubTrigger>{category.label}</DropdownMenuSubTrigger>
+                              <DropdownMenuSubContent>
+                                {category.items.map((item) => (
+                                  <DropdownMenuItem
+                                    key={item.value}
+                                    onClick={() => handleCreditCardFilter(item)}
+                                  >
+                                    {item.label}
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuSubContent>
+                            </DropdownMenuSub>
+                          ))}
+                        </>
+                      ),
+                    },
+                  ];
+
+                  return (
+                    <CustomTable
+                      columns={columns}
+                      data={tableData}
+                      selectedRows={selectedRows}
+                      onRowSelect={handleRowSelect}
+                      isSelectAll={isSelectAll}
+                      onSelectAll={handleSelectAll}
+                      bulkActions={
+                        <>
+                          <DropdownMenuItem>Compose Email</DropdownMenuItem>
+                          <DropdownMenuItem>Compose SMS</DropdownMenuItem>
+                        </>
+                      }
+                      rowActions={(_row: any, _index: number) => (
+                        <>
+                          <DropdownMenuItem>Edit Record</DropdownMenuItem>
+                          <DropdownMenuItem>Export Record</DropdownMenuItem>
+                        </>
+                      )}
+                      caption="A list of users."
+                      showSelection={true}
+                      showActions={false}
+                    />
+                  );
+                })()}
               </div>
 
               <div className="space-y-4">
