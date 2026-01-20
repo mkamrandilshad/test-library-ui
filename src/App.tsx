@@ -271,7 +271,9 @@ import {
   ItemHeader,
   ItemFooter,
   Kbd,
-  KbdGroup
+  KbdGroup,
+  // Rich Text Editor
+  RichTextEditor
 } from "efc-ui-library";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -309,6 +311,27 @@ export default function App() {
   const [calendarDate, setCalendarDate] = useState<Date | undefined>(new Date());
   const [carouselApi, setCarouselApi] = useState<any>(null);
   const form = useForm();
+
+  // RichTextEditor state
+  const [richTextContent, setRichTextContent] = useState<string>("<p>Initial content</p>");
+  const [richTextContent2, setRichTextContent2] = useState<string>("<p>Second editor content</p>");
+  
+  // Templates for RichTextEditor
+  const [templates] = useState([
+    { id: "1", name: "Welcome Email", content: "<p>Dear {{name}},</p><p>Welcome to our service!</p>" },
+    { id: "2", name: "Thank You", content: "<p>Thank you for your order, {{customerName}}!</p>" },
+    { id: "3", name: "Meeting Invitation", content: "<p>You are invited to a meeting on {{date}}.</p>" },
+  ]);
+
+  // Merge fields for RichTextEditor
+  const [mergeFields] = useState([
+    { id: "1", label: "Name", value: "name", category: "Contact" },
+    { id: "2", label: "Email", value: "email", category: "Contact" },
+    { id: "3", label: "Customer Name", value: "customerName", category: "Customer" },
+    { id: "4", label: "Order Number", value: "orderNumber", category: "Order" },
+    { id: "5", label: "Date", value: "date", category: "Date" },
+    { id: "6", label: "Company", value: "company", category: "Contact" },
+  ]);
 
   // Table filter state
   const [statusFilterIndex, setStatusFilterIndex] = useState(0);
@@ -1529,6 +1552,301 @@ export default function App() {
                 <Button onClick={() => toast.error("Error occurred")}>
                   Error Toast
                 </Button>
+              </div>
+            </section>
+
+            <Separator />
+
+            {/* Rich Text Editor */}
+            <section className="space-y-4">
+              <h2 className="text-3xl font-bold border-b pb-2">Rich Text Editor</h2>
+              
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Example 1: Basic Usage</h3>
+                <div className="space-y-2">
+                  <Label>Basic RichTextEditor with defaultContent and onContentChange</Label>
+                  <RichTextEditor
+                    defaultContent={richTextContent}
+                    onContentChange={(content: string) => {
+                      console.log("RichTextEditor onContentChange:", content);
+                      setRichTextContent(content);
+                    }}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Current content length: {richTextContent.length} characters
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Example 2: With Custom ClassName</h3>
+                <div className="space-y-2">
+                  <Label>RichTextEditor with custom styling via className</Label>
+                  <RichTextEditor
+                    defaultContent={richTextContent2}
+                    onContentChange={(content: string) => {
+                      console.log("RichTextEditor 2 onContentChange:", content);
+                      setRichTextContent2(content);
+                    }}
+                    className="border-2 border-primary rounded-lg"
+                  />
+                  <Button onClick={() => setRichTextContent2("<p>Reset content</p>")}>
+                    Reset Content
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Example 3: Hide Menu Bar</h3>
+                <div className="space-y-2">
+                  <Label>RichTextEditor with hidden menu bar</Label>
+                  <RichTextEditor
+                    defaultContent="<p>This editor has no menu bar</p>"
+                    onContentChange={(content: string) => {
+                      console.log("Hidden menu bar editor onContentChange:", content);
+                    }}
+                    hideMenuBar={true}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Menu bar is hidden: Users can still type but toolbar is not visible
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Example 4: File Upload</h3>
+                <div className="space-y-2">
+                  <Label>RichTextEditor with file upload handler</Label>
+                  <RichTextEditor
+                    defaultContent={richTextContent}
+                    onContentChange={(content: string) => {
+                      console.log("File upload editor onContentChange:", content);
+                      setRichTextContent(content);
+                    }}
+                    onFileUpload={async (file: File) => {
+                      console.log("File upload triggered:", file.name, file.size);
+                      toast(`Uploading file: ${file.name}`);
+                      // Simulate upload delay
+                      await new Promise(resolve => setTimeout(resolve, 1000));
+                      // Return file attachment object
+                      const result = {
+                        id: `file-${Date.now()}`,
+                        filename: file.name,
+                      };
+                      toast.success(`File uploaded: ${file.name}`);
+                      return result;
+                    }}
+                    onFileChange={(files) => {
+                      console.log("Files changed:", files);
+                      toast(`Total files: ${files.length}`);
+                    }}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    File upload handler will be called when a file is attached. Files will appear below the editor.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Example 5: Templates</h3>
+                <div className="space-y-2">
+                  <Label>RichTextEditor with templates enabled</Label>
+                  <RichTextEditor
+                    defaultContent={richTextContent}
+                    onContentChange={(content: string) => {
+                      console.log("Templates editor onContentChange:", content);
+                      setRichTextContent(content);
+                    }}
+                    hasTemplates={true}
+                    templates={templates}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Templates button appears in menu bar. Click to insert pre-defined templates.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Example 6: Merge Fields</h3>
+                <div className="space-y-2">
+                  <Label>RichTextEditor with merge fields enabled</Label>
+                  <RichTextEditor
+                    defaultContent={richTextContent}
+                    onContentChange={(content: string) => {
+                      console.log("Merge fields editor onContentChange:", content);
+                      setRichTextContent(content);
+                    }}
+                    hasMergeFields={true}
+                    mergeFields={mergeFields}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Mail Merge button appears in menu bar. Click to insert merge fields like {'{{'}name{'}}'}, {'{{'}email{'}}'}, etc.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Example 7: Merge Fields with Filter</h3>
+                <div className="space-y-2">
+                  <Label>RichTextEditor with filtered merge fields</Label>
+                  <RichTextEditor
+                    defaultContent={richTextContent}
+                    onContentChange={(content: string) => {
+                      console.log("Filtered merge fields editor onContentChange:", content);
+                      setRichTextContent(content);
+                    }}
+                    hasMergeFields={true}
+                    mergeFields={mergeFields}
+                    mergeFieldFilter={(field) => {
+                      // Only show Contact category fields
+                      return field.category === "Contact";
+                    }}
+                  />
+                  <p className="text-muted-foreground">
+                    Only merge fields with category "Contact" are shown in the menu
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Example 8: Form Inputs</h3>
+                <div className="space-y-2">
+                  <Label>RichTextEditor with form inputs enabled</Label>
+                  <RichTextEditor
+                    defaultContent={richTextContent}
+                    onContentChange={(content: string) => {
+                      console.log("Form inputs editor onContentChange:", content);
+                      setRichTextContent(content);
+                    }}
+                    hasFormInputs={true}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Form inputs feature is enabled (if supported by the component)
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Example 9: Templates and Merge Fields Combined</h3>
+                <div className="space-y-2">
+                  <Label>RichTextEditor with both templates and merge fields</Label>
+                  <RichTextEditor
+                    defaultContent={richTextContent}
+                    onContentChange={(content: string) => {
+                      console.log("Combined editor onContentChange:", content);
+                      setRichTextContent(content);
+                    }}
+                    hasTemplates={true}
+                    hasMergeFields={true}
+                    templates={templates}
+                    mergeFields={mergeFields}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Both Templates and Mail Merge buttons appear in the menu bar
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Example 10: File Upload with File Change Tracking</h3>
+                <div className="space-y-2">
+                  <Label>RichTextEditor with file upload and change tracking</Label>
+                  <RichTextEditor
+                    defaultContent={richTextContent}
+                    onContentChange={(content: string) => {
+                      console.log("File tracking editor onContentChange:", content);
+                      setRichTextContent(content);
+                    }}
+                    onFileUpload={async (file: File) => {
+                      console.log("File upload:", file.name);
+                      toast(`Uploading: ${file.name}`);
+                      await new Promise(resolve => setTimeout(resolve, 500));
+                      return {
+                        id: `file-${Date.now()}`,
+                        filename: file.name,
+                      };
+                    }}
+                    onFileChange={(files) => {
+                      console.log("Files updated:", files);
+                      toast(`Files attached: ${files.length}`);
+                    }}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Both onFileUpload and onFileChange callbacks are used to track file attachments
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Example 11: All Features Enabled</h3>
+                <div className="space-y-2">
+                  <Label>RichTextEditor with all features enabled</Label>
+                  <RichTextEditor
+                    defaultContent={richTextContent}
+                    onContentChange={(content: string) => {
+                      console.log("Full features editor onContentChange:", content);
+                      setRichTextContent(content);
+                    }}
+                    hasTemplates={true}
+                    hasMergeFields={true}
+                    hasFormInputs={true}
+                    templates={templates}
+                    mergeFields={mergeFields}
+                    onFileUpload={async (file: File) => {
+                      console.log("File upload:", file.name);
+                      toast(`Uploading: ${file.name}`);
+                      await new Promise(resolve => setTimeout(resolve, 500));
+                      return {
+                        id: `file-${Date.now()}`,
+                        filename: file.name,
+                      };
+                    }}
+                    onFileChange={(files) => {
+                      console.log("Files:", files);
+                    }}
+                    className="border-2 border-primary rounded-lg"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    All features are enabled: Templates, Merge Fields, Form Inputs, and File Upload
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Example 12: All Props Combined</h3>
+                <div className="space-y-2">
+                  <Label>RichTextEditor with all props used together</Label>
+                  <RichTextEditor
+                    defaultContent="<p>This is the default content</p>"
+                    onContentChange={(content: string) => {
+                      console.log("All props editor onContentChange:", content);
+                    }}
+                    hasMergeFields={true}
+                    hasTemplates={true}
+                    hasFormInputs={true}
+                    hideMenuBar={false}
+                    templates={templates}
+                    mergeFields={mergeFields}
+                    mergeFieldFilter={(field) => {
+                      // Show all fields
+                      return true;
+                    }}
+                    onFileUpload={async (file: File) => {
+                      console.log("File upload:", file.name);
+                      return {
+                        id: `file-${Date.now()}`,
+                        filename: file.name,
+                      };
+                    }}
+                    onFileChange={(files) => {
+                      console.log("Files changed:", files);
+                    }}
+                    className="border-2 border-secondary rounded-lg"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    This example demonstrates all available props used together
+                  </p>
+                </div>
               </div>
             </section>
             </div>
