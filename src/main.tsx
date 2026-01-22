@@ -8,51 +8,62 @@ import App from './App.tsx'
 // Light theme colors
 // Blue color palette: #e5f0fc, #c2d9f7, #7494ff, #4266c6, #162154
 const lightTheme: ThemeColors = {
-  background: 'white', // #e5f0fc - very light blue
-  foreground: '229 58% 21%', // #162154 - very dark blue
-  card: '211 79% 94%', // #e5f0fc - same as background
-  'card-foreground': '229 58% 21%', // #162154 - dark text
-  popover: '211 79% 94%', // #e5f0fc - light blue
-  'popover-foreground': '229 58% 21%', // #162154 - dark text
-  primary: '226 100% 73%', // #7494ff - bright blue
-  'primary-foreground': '211 79% 94%', // #e5f0fc - light text on primary
-  secondary: '214 77% 86%', // #c2d9f7 - light blue
-  'secondary-foreground': '229 58% 21%', // #162154 - dark text
-  muted: '214 77% 86%', // #c2d9f7 - light blue
-  'muted-foreground': '224 54% 52%', // #4266c6 - medium blue
-  accent: '226 100% 73%', // #7494ff - bright blue
-  'accent-foreground': '211 79% 94%', // #e5f0fc - light text
-  destructive: '224 54% 52%', // #4266c6 - medium blue
-  'destructive-foreground': '211 79% 94%', // #e5f0fc - light text
-  border: '214 77% 86%', // #c2d9f7 - light blue border
-  input: '214 77% 86%', // #c2d9f7 - light blue input border
-  ring: '226 100% 73%', // #7494ff - bright blue focus ring
+  background: '0 0% 100%',              // #FFFFFF
+  foreground: '229 58% 21%',             // #162154
+
+  card: '211 79% 94%',                   // #e5f0fc
+  'card-foreground': '229 58% 21%',      // #162154
+
+  popover: '211 79% 94%',                // #e5f0fc
+  'popover-foreground': '229 58% 21%',   // #162154
+
+  primary: '226 100% 73%',               // #7494ff
+  'primary-foreground': '211 79% 94%',   // #e5f0fc
+
+  secondary: '214 77% 86%',              // #c2d9f7
+  'secondary-foreground': '229 58% 21%', // #162154
+
+  muted: '214 77% 86%',                  // #c2d9f7
+  'muted-foreground': '224 54% 52%',     // #4266c6
+
+  accent: '226 100% 73%',                // #7494ff
+  'accent-foreground': '211 79% 94%',    // #e5f0fc
+
+  destructive: '224 54% 52%',            // #4266c6
+  'destructive-foreground': '211 79% 94%', // #e5f0fc
+
+  border: '214 77% 86%',                 // #c2d9f7
+  input: '214 77% 86%',                  // #c2d9f7
+  ring: '226 100% 73%',                  // #7494ff
+
   radius: '0.5rem',
 }
 
+
 // Dark theme colors
 const darkTheme: ThemeColors = {
-  background: '222.2 84% 4.9%',
-  foreground: '210 40% 98%',
-  card: '222.2 84% 4.9%',
-  'card-foreground': '210 40% 98%',
-  popover: '222.2 84% 4.9%',
-  'popover-foreground': '210 40% 98%',
-  primary: '210 40% 98%',
-  'primary-foreground': '222.2 47.4% 11.2%',
-  secondary: '217.2 32.6% 17.5%',
-  'secondary-foreground': '210 40% 98%',
-  muted: '217.2 32.6% 17.5%',
-  'muted-foreground': '215 20.2% 65.1%',
-  accent: '217.2 32.6% 17.5%',
-  'accent-foreground': '210 40% 98%',
-  destructive: '0 62.8% 30.6%',
-  'destructive-foreground': '210 40% 98%',
-  border: '217.2 32.6% 17.5%',
-  input: '217.2 32.6% 17.5%',
-  ring: '212.7 26.8% 83.9%',
+  background: '220 15% 12%',           // Darker background
+  foreground: '210 35% 95%',           // Bright text
+  card: '220 15% 15%',                  // Slightly lighter than background
+  'card-foreground': '210 35% 95%',    // Same bright text for cards
+  popover: '220 15% 18%',               // Slightly lighter for popovers
+  'popover-foreground': '210 35% 95%',
+  primary: '200 90% 60%',               // A vibrant blue for primary actions
+  'primary-foreground': '220 15% 12%',  // Dark text on bright primary
+  secondary: '210 30% 40%',             // Muted blue-gray
+  'secondary-foreground': '210 35% 95%',
+  muted: '210 25% 25%',                 // Muted background for less important elements
+  'muted-foreground': '210 35% 75%',    // Slightly lighter text
+  accent: '280 50% 60%',                // Purple accent
+  'accent-foreground': '220 15% 12%',
+  destructive: '0 70% 50%',             // Red for destructive actions
+  'destructive-foreground': '220 15% 12%',
+  border: '220 15% 25%',                // Subtle borders
+  input: '220 15% 18%',                  // Input background
+  ring: '200 90% 60%',                   // Highlight ring
   radius: '0.5rem',
 }
+
 
 // Initialize dark mode based on stored preference or system preference
 const initializeDarkMode = () => {
@@ -86,7 +97,7 @@ initializeDarkMode()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider theme={lightTheme}  >
+    <ThemeProvider theme={darkTheme}  >
       <App/>
     </ThemeProvider>
   </StrictMode>
