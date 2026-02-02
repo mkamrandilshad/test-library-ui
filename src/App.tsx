@@ -273,12 +273,21 @@ import {
   Kbd,
   KbdGroup,
   // Rich Text Editor
-  RichTextEditor
+  RichTextEditor,
+  // New Components
+  StatCard,
+  StatDisplay,
+  FeedPost,
+  Comment,
+  Attachment,
+  Timeline,
+  ProfileCard
 } from "efc-ui-library";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { MoreVertical } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { MoreVertical, TrendingUp, Users, DollarSign, } from "lucide-react";
 import { ThemeToggle } from "./components/ThemeToggle";
 
 export default function App() {
@@ -488,6 +497,37 @@ export default function App() {
       color: "hsl(var(--chart-2))",
     },
   };
+
+  // Example cards for StatCard with NavLink
+  const statCards = [
+    {
+      path: "/dashboard",
+      icon: <TrendingUp className="h-6 w-6" />,
+      count: 1250,
+      count2: 1100,
+      title: "Total Revenue",
+      subtitle: "Last 30 days",
+      color: "success",
+    },
+    {
+      path: "/users",
+      icon: <Users className="h-6 w-6" />,
+      count: 342,
+      count2: 298,
+      title: "Active Users",
+      subtitle: "This month",
+      color: "success",
+    },
+    {
+      path: "/alerts",
+      icon: <DollarSign className="h-6 w-6" />,
+      count: 15,
+      count2: 8,
+      title: "Pending Alerts",
+      subtitle: "Requires attention",
+      color: "warning",
+    },
+  ];
 
   return (
     <TooltipProvider>
@@ -1141,7 +1181,7 @@ export default function App() {
                 </Pagination>
               </div>
 
-              <div className="space-y-4">
+              {/* <div className="space-y-4">
                 <h3 className="text-2xl font-semibold">Tabs</h3>
                 <Tabs value={tabsValue} onValueChange={setTabsValue} className="w-[400px]">
                   <TabsList>
@@ -1153,7 +1193,7 @@ export default function App() {
                   <TabsContent value="tab2">Content for Tab 2</TabsContent>
                   <TabsContent value="tab3">Content for Tab 3</TabsContent>
                 </Tabs>
-              </div>
+              </div> */}
             </section>
 
             <Separator />
@@ -1301,11 +1341,14 @@ export default function App() {
 
               <div className="space-y-4">
                 <h3 className="text-2xl font-semibold">Badge</h3>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Badge>Default</Badge>
                   <Badge variant="secondary">Secondary</Badge>
                   <Badge variant="destructive">Destructive</Badge>
                   <Badge variant="outline">Outline</Badge>
+                  <Badge variant="critical">Critical</Badge>
+                  <Badge variant="high">High</Badge>
+                  <Badge variant="normal">Normal</Badge>
                 </div>
               </div>
 
@@ -1846,6 +1889,236 @@ export default function App() {
                   <p className="text-sm text-muted-foreground">
                     This example demonstrates all available props used together
                   </p>
+                </div>
+              </div>
+            </section>
+
+            <Separator />
+
+            {/* New Components */}
+            <section className="space-y-4">
+              <h2 className="text-3xl font-bold border-b pb-2">New Components</h2>
+              
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">StatCard</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {statCards.map((card, index) => (
+                    <NavLink key={index} to={card?.path} className="block">
+                      <StatCard
+                        icon={card.icon}
+                        value={card.count}
+                        value2={card.count2}
+                        title={card.title}
+                        subtitle={card.subtitle}
+                        valueSize="md"
+                        color="text-red-500"
+                      />
+                    </NavLink>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">StatDisplay</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <StatDisplay
+                    current={119}
+                    previous={123}
+                    label="Current / Previous"
+                    subLabel="Active sessions"
+                  />
+                  <StatDisplay
+                    current="98%"
+                    label="Uptime"
+                    subLabel="Last 30 days"
+                  />
+                  <StatDisplay
+                    current={42}
+                    previous={50}
+                    label="Capacity"
+                    subLabel="Available slots"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">FeedPost</h3>
+                <div className="space-y-4 max-w-2xl">
+                  <FeedPost
+                    avatar="https://github.com/shadcn.png"
+                    avatarFallback="JD"
+                    name="John Doe"
+                    timestamp="2 hours ago"
+                    reference="Posted in General Discussion"
+                    content="Just finished working on the new dashboard design. What do you think about the new color scheme?"
+                    attachment={{
+                      filename: "dashboard-mockup.pdf",
+                      onClick: () => toast("Opening attachment")
+                    }}
+                    likeCount={24}
+                    isLiked={false}
+                    onLike={() => toast("Liked!")}
+                    onComment={(comment) => toast(`Comment: ${comment}`)}
+                  />
+                  <FeedPost
+                    avatar="https://github.com/shadcn.png"
+                    avatarFallback="JS"
+                    name="Jane Smith"
+                    timestamp="5 hours ago"
+                    content="Excited to announce our new feature release! 🎉"
+                    likeCount={156}
+                    isLiked={true}
+                    onLike={() => toast("Unliked!")}
+                    onComment={(comment) => toast(`Comment: ${comment}`)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Comment</h3>
+                <div className="space-y-4 max-w-2xl">
+                  <Comment
+                    avatar="https://github.com/shadcn.png"
+                    avatarFallback="AB"
+                    name="Alice Brown"
+                    timestamp="1 hour ago"
+                    content="Great work on the dashboard! The new design looks amazing."
+                    onAction={(action) => toast(`Action: ${action}`)}
+                  />
+                  <Comment
+                    avatar="https://github.com/shadcn.png"
+                    avatarFallback="CD"
+                    name="Charlie Davis"
+                    timestamp="30 minutes ago"
+                    content="I agree! The color scheme is much better now."
+                    isNested={true}
+                    onAction={(action) => toast(`Action: ${action}`)}
+                  />
+                  <Comment
+                    avatar="https://github.com/shadcn.png"
+                    avatarFallback="EF"
+                    name="Emma Foster"
+                    timestamp="15 minutes ago"
+                    content="Can we also add dark mode support?"
+                    onAction={(action) => toast(`Action: ${action}`)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Attachment</h3>
+                <div className="space-y-2 max-w-md">
+                  <Attachment
+                    filename="project-proposal.pdf"
+                    onClick={() => toast("Opening project-proposal.pdf")}
+                  />
+                  <Attachment
+                    filename="design-mockups.zip"
+                    variant="default"
+                    onClick={() => toast("Opening design-mockups.zip")}
+                  />
+                  <Attachment
+                    filename="very-long-filename-that-should-be-truncated.pdf"
+                    onClick={() => toast("Opening file")}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Timeline</h3>
+                <div className="max-w-4xl">
+                  <Timeline
+                    items={[
+                      {
+                        id: '1',
+                        title: 'Ongoing Reminder',
+                        startTime: '03:15 PM',
+                        endTime: '04:15 PM',
+                        color: '#a855f7', // lighter purple/pink
+                      },
+                      {
+                        id: '2',
+                        title: 'Yoga Session',
+                        startTime: '04:15 PM',
+                        endTime: '05:15 PM',
+                        capacity: {
+                          current: 0,
+                          max: 10,
+                        },
+                        color: '#7c3aed', // deep purple
+                      },
+                      {
+                        id: '3',
+                        title: 'Account Wide Session -- Demo',
+                        startTime: '04:00 PM',
+                        endTime: '06:00 PM',
+                        capacity: {
+                          current: 0,
+                          max: 50,
+                        },
+                        color: '#7c3aed', // deep purple
+                      },
+                      {
+                        id: '4',
+                        title: 'Karate',
+                        startTime: '07:04 PM',
+                        endTime: '11:00 PM',
+                        capacity: {
+                          current: 1,
+                          max: 100,
+                        },
+                        color: '#7c3aed', // deep purple
+                      },
+                    ]}
+                    startHour={15} // 3 PM
+                    endHour={20} // 8 PM
+                    hourFormat="12h"
+                    title="Agenda"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">ProfileCard</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
+                  <ProfileCard
+                    avatar="https://github.com/shadcn.png"
+                    avatarFallback="JD"
+                    details={[
+                      { label: "Name", value: "John Doe" },
+                      { label: "Email", value: "john.doe@example.com" },
+                      { label: "Timezone", value: "UTC-5 (EST)" },
+                      { label: "Role", value: "Administrator" },
+                    ]}
+                    actions={[
+                      {
+                        label: "Change Password",
+                        onClick: () => toast("Change password clicked"),
+                        variant: "outline",
+                      },
+                      {
+                        label: "Edit",
+                        onClick: () => toast("Edit clicked"),
+                        variant: "default",
+                      },
+                    ]}
+                  />
+                  <ProfileCard
+                    avatarFallback="JS"
+                    details={[
+                      { label: "Name", value: "Jane Smith" },
+                      { label: "Email", value: "jane.smith@example.com" },
+                      { label: "Timezone", value: "UTC+0 (GMT)" },
+                      { label: "Role", value: "User" },
+                    ]}
+                    actions={[
+                      {
+                        label: "Edit Profile",
+                        onClick: () => toast("Edit profile clicked"),
+                        variant: "outline",
+                      },
+                    ]}
+                  />
                 </div>
               </div>
             </section>

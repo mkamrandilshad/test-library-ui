@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from 'efc-ui-library'
 import type { ThemeColors } from 'efc-ui-library'
 import './index.css'
@@ -97,8 +98,10 @@ initializeDarkMode()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider theme={darkTheme}  >
-      <App/>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider theme={lightTheme}  >
+        <App/>
+      </ThemeProvider>
+    </BrowserRouter>
   </StrictMode>
 )
