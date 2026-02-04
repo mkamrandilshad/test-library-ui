@@ -287,7 +287,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { NavLink } from "react-router-dom";
-import { MoreVertical, TrendingUp, Users, DollarSign, } from "lucide-react";
+import { MoreVertical, TrendingUp, Users, DollarSign, Bell, Flag } from "lucide-react";
 import { ThemeToggle } from "./components/ThemeToggle";
 
 export default function App() {
@@ -324,6 +324,33 @@ export default function App() {
   // RichTextEditor state
   const [richTextContent, setRichTextContent] = useState<string>("<p>Initial content</p>");
   const [richTextContent2, setRichTextContent2] = useState<string>("<p>Second editor content</p>");
+  
+  // FeedPost state
+  const [feedPostLikes, setFeedPostLikes] = useState<{ [key: number]: boolean }>({});
+  const [feedPostLikeCounts, setFeedPostLikeCounts] = useState<{ [key: number]: number }>({});
+  const [feedPostComments, setFeedPostComments] = useState<{ [key: number]: string[] }>({});
+  
+  // FeedPost handlers
+  const handleFeedPostLike = (postId: number) => {
+    setFeedPostLikes(prev => ({ ...prev, [postId]: !prev[postId] }));
+    setFeedPostLikeCounts(prev => ({
+      ...prev,
+      [postId]: prev[postId] ? prev[postId] - 1 : (prev[postId] || 0) + 1
+    }));
+    toast(feedPostLikes[postId] ? "Post unliked" : "Post liked");
+  };
+  
+  const handleFeedPostComment = (postId: number, comment: string) => {
+    setFeedPostComments(prev => ({
+      ...prev,
+      [postId]: [...(prev[postId] || []), comment]
+    }));
+    toast(`Comment added: ${comment}`);
+  };
+  
+  const handleBellClick = () => toast("Notifications clicked");
+  const handleFlagClick = () => toast("Post flagged");
+  const handleMenuAction = (action: string) => toast(`Menu action: ${action}`);
   
   // Templates for RichTextEditor
   const [templates] = useState([
@@ -1870,7 +1897,7 @@ export default function App() {
                     hideMenuBar={false}
                     templates={templates}
                     mergeFields={mergeFields}
-                    mergeFieldFilter={(field) => {
+                    mergeFieldFilter={() => {
                       // Show all fields
                       return true;
                     }}
@@ -1942,8 +1969,11 @@ export default function App() {
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-2xl font-semibold">FeedPost</h3>
-                <div className="space-y-4 max-w-2xl">
+                <h3 className="text-2xl font-semibold">FeedPost - All Configurations</h3>
+                
+                {/* Example 1: With Comments Display */}
+                <div className="space-y-2">
+                  <h4 className="text-lg font-medium">With Comments Display</h4>
                   <FeedPost
                     avatar="https://github.com/shadcn.png"
                     avatarFallback="JD"
@@ -1955,21 +1985,277 @@ export default function App() {
                       filename: "dashboard-mockup.pdf",
                       onClick: () => toast("Opening attachment")
                     }}
-                    likeCount={24}
-                    isLiked={false}
-                    onLike={() => toast("Liked!")}
-                    onComment={(comment) => toast(`Comment: ${comment}`)}
+                    likeCount={feedPostLikeCounts[1] || 24}
+                    isLiked={feedPostLikes[1] || false}
+                    onLike={() => handleFeedPostLike(1)}
+                    onComment={(comment: string) => handleFeedPostComment(1, comment)}
+                    comments={[
+                      {
+                        id: "c1",
+                        avatar: "https://github.com/shadcn.png",
+                        avatarFallback: "AB",
+                        name: "Alice Brown",
+                        timestamp: "1 hour ago",
+                        content: "Great work on the dashboard! The new design looks amazing.",
+                        menuItems: [
+                          { label: "Reply", onClick: () => toast("Replying to comment") },
+                          { label: "Report", onClick: () => toast("Reporting comment") }
+                        ]
+                      },
+                      {
+                        id: "c2",
+                        avatarFallback: "CD",
+                        name: "Charlie Davis",
+                        timestamp: "30 minutes ago",
+                        content: "I agree! The color scheme is much better now.",
+                        backgroundColor: "bg-muted/50"
+                      }
+                    ]}
                   />
+                </div>
+
+                {/* Example 2: With Action Menu Only */}
+                <div className="space-y-2">
+                  <h4 className="text-lg font-medium">With Action Menu Only</h4>
                   <FeedPost
-                    avatar="https://github.com/shadcn.png"
                     avatarFallback="JS"
                     name="Jane Smith"
                     timestamp="5 hours ago"
-                    content="Excited to announce our new feature release! 🎉"
-                    likeCount={156}
-                    isLiked={true}
-                    onLike={() => toast("Unliked!")}
-                    onComment={(comment) => toast(`Comment: ${comment}`)}
+                    content="Excited to announce our new feature release! 🎉 Check out the latest updates."
+                    showBellIcon={false}
+                    showFlagIcon={false}
+                    showMenuIcon={true}
+                    menuItems={[
+                      { label: "Edit Post", onClick: () => handleMenuAction("Edit Post") },
+                      { label: "Delete Post", onClick: () => handleMenuAction("Delete Post") },
+                      { label: "Share", onClick: () => handleMenuAction("Share") },
+                      { label: "Report", onClick: () => handleMenuAction("Report") }
+                    ]}
+                    likeCount={feedPostLikeCounts[2] || 156}
+                    isLiked={feedPostLikes[2] || true}
+                    onLike={() => handleFeedPostLike(2)}
+                    onComment={(comment: string) => handleFeedPostComment(2, comment)}
+                    likesInfo="Fizza Rehan and 155 others like this"
+                  />
+                </div>
+
+                {/* Example 3: With Flag Icon Only */}
+                <div className="space-y-2">
+                  <h4 className="text-lg font-medium">With Flag Icon Only</h4>
+                  <FeedPost
+                    avatar="https://github.com/shadcn.png"
+                    avatarFallback="EF"
+                    name="Emma Foster"
+                    timestamp="1 day ago"
+                    content="Important announcement: Please review the updated community guidelines before posting."
+                    showBellIcon={false}
+                    showFlagIcon={true}
+                    showMenuIcon={false}
+                    onFlagClick={handleFlagClick}
+                    flagIconClassName="text-red-500 hover:text-red-600"
+                    likeCount={feedPostLikeCounts[3] || 42}
+                    isLiked={feedPostLikes[3] || false}
+                    onLike={() => handleFeedPostLike(3)}
+                    onComment={(comment: string) => handleFeedPostComment(3, comment)}
+                    showCommentInput={false}
+                  />
+                </div>
+
+                {/* Example 4: With Action Menu, Flag and Notifications Icons */}
+                <div className="space-y-2">
+                  <h4 className="text-lg font-medium">With Action Menu, Flag and Notifications Icons</h4>
+                  <FeedPost
+                    avatarFallback="GH"
+                    name="George Harrison"
+                    timestamp="3 hours ago"
+                    reference="📌 Pinned Post"
+                    content="Monthly team meeting scheduled for Friday at 3 PM. Please prepare your updates and share any blockers."
+                    showBellIcon={true}
+                    showFlagIcon={true}
+                    showMenuIcon={true}
+                    onBellClick={handleBellClick}
+                    onFlagClick={handleFlagClick}
+                    bellIconClassName="text-blue-500 hover:text-blue-600"
+                    flagIconClassName="text-orange-500 hover:text-orange-600"
+                    menuItems={[
+                      { label: "Pin Post", onClick: () => handleMenuAction("Pin Post") },
+                      { label: "Edit", onClick: () => handleMenuAction("Edit") },
+                      { label: "Delete", onClick: () => handleMenuAction("Delete") },
+                      { label: "Copy Link", onClick: () => handleMenuAction("Copy Link") }
+                    ]}
+                    likeCount={feedPostLikeCounts[4] || 89}
+                    isLiked={feedPostLikes[4] || false}
+                    onLike={() => handleFeedPostLike(4)}
+                    onComment={(comment: string) => handleFeedPostComment(4, comment)}
+                    likesInfo="You and 88 others like this"
+                    imageUrl="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=400&fit=crop"
+                    comments={[
+                      {
+                        id: "c3",
+                        avatarFallback: "IJ",
+                        name: "Ian Johnson",
+                        timestamp: "2 hours ago",
+                        content: "Thanks for the reminder! I'll prepare my updates.",
+                        showMenuIcon: false
+                      }
+                    ]}
+                  />
+                </div>
+
+                {/* Example 5: Custom Action Buttons */}
+                <div className="space-y-2">
+                  <h4 className="text-lg font-medium">With Custom Action Buttons</h4>
+                  <FeedPost
+                    avatar="https://github.com/shadcn.png"
+                    avatarFallback="KL"
+                    name="Karen Lee"
+                    timestamp="6 hours ago"
+                    content="New design system documentation is now available! Check out our comprehensive guide.
+
+\nKey features:
+- Color palette
+- Typography scale
+- Component library
+- Usage examples"
+                    showBellIcon={false}
+                    showFlagIcon={false}
+                    showMenuIcon={false}
+                    actionButtons={[
+                      {
+                        icon: Bell,
+                        onClick: handleBellClick,
+                        className: "text-blue-500 hover:bg-blue-50",
+                        ariaLabel: "Subscribe to updates"
+                      },
+                      {
+                        icon: Flag,
+                        onClick: handleFlagClick,
+                        className: "text-red-500 hover:bg-red-50",
+                        ariaLabel: "Bookmark this post"
+                      }
+                    ]}
+                    likeCount={feedPostLikeCounts[5] || 67}
+                    isLiked={feedPostLikes[5] || false}
+                    onLike={() => handleFeedPostLike(5)}
+                    onComment={(comment: string) => handleFeedPostComment(5, comment)}
+                    attachment={{
+                      filename: "design-system-guide.pdf",
+                      onClick: () => toast("Opening design system guide")
+                    }}
+                  />
+                </div>
+
+                {/* Example 6: Minimal Version - No Actions */}
+                <div className="space-y-2">
+                  <h4 className="text-lg font-medium">Minimal Version - No Actions</h4>
+                  <FeedPost
+                    avatarFallback="MN"
+                    name="Michael Nguyen"
+                    timestamp="2 days ago"
+                    content="Quick update: Server maintenance completed successfully. All systems are now operational."
+                    showBellIcon={false}
+                    showFlagIcon={false}
+                    showMenuIcon={false}
+                    showLikeButton={false}
+                    showCommentInput={false}
+                    likeCount={0}
+                    isLiked={false}
+                    onLike={() => {}}
+                    onComment={() => {}}
+                  />
+                </div>
+
+                {/* Example 7: With Custom Render Actions */}
+                <div className="space-y-2">
+                  <h4 className="text-lg font-medium">With Custom Render Actions</h4>
+                  <FeedPost
+                    avatar="https://github.com/shadcn.png"
+                    avatarFallback="OP"
+                    name="Olivia Parker"
+                    timestamp="4 hours ago"
+                    content="🚀 Launch day! Our new feature is now live. Try it out and let us know what you think!"
+                    renderActions={() => (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleBellClick}
+                          className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200"
+                        >
+                          Follow
+                        </button>
+                        <button
+                          onClick={handleFlagClick}
+                          className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200"
+                        >
+                          Endorse
+                        </button>
+                        <button
+                          onClick={() => handleMenuAction("Share")}
+                          className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200"
+                        >
+                          Share
+                        </button>
+                      </div>
+                    )}
+                    likeCount={feedPostLikeCounts[6] || 234}
+                    isLiked={feedPostLikes[6] || true}
+                    onLike={() => handleFeedPostLike(6)}
+                    onComment={(comment: string) => handleFeedPostComment(6, comment)}
+                    likesInfo="235 people like this"
+                  />
+                </div>
+
+                {/* Example 8: With Custom Render Interactions */}
+                <div className="space-y-2">
+                  <h4 className="text-lg font-medium">With Custom Render Interactions</h4>
+                  <FeedPost
+                    avatarFallback="QR"
+                    name="Quinn Roberts"
+                    timestamp="8 hours ago"
+                    content="Poll: What's your favorite UI framework? Vote below! 👇"
+                    showBellIcon={true}
+                    showFlagIcon={true}
+                    showMenuIcon={true}
+                    onBellClick={handleBellClick}
+                    onFlagClick={handleFlagClick}
+                    menuItems={[
+                      { label: "Edit Poll", onClick: () => handleMenuAction("Edit Poll") },
+                      { label: "Close Poll", onClick: () => handleMenuAction("Close Poll") },
+                      { label: "Share Results", onClick: () => handleMenuAction("Share Results") }
+                    ]}
+                    renderInteractions={() => (
+                      <div className="space-y-3">
+                        <div className="flex gap-2 flex-wrap">
+                          {[
+                            { label: "React", votes: 45, color: "bg-blue-500" },
+                            { label: "Vue", votes: 23, color: "bg-green-500" },
+                            { label: "Angular", votes: 18, color: "bg-red-500" },
+                            { label: "Svelte", votes: 12, color: "bg-orange-500" }
+                          ].map((option) => (
+                            <button
+                              key={option.label}
+                              onClick={() => toast(`Voted for ${option.label}`)}
+                              className="px-3 py-2 text-sm border rounded-lg hover:bg-accent transition-colors"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${option.color}`} />
+                                <span>{option.label}</span>
+                                <span className="text-muted-foreground">({option.votes})</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span>98 votes</span>
+                          <span>•</span>
+                          <span>2 days left</span>
+                        </div>
+                      </div>
+                    )}
+                    likeCount={feedPostLikeCounts[7] || 56}
+                    isLiked={feedPostLikes[7] || false}
+                    onLike={() => handleFeedPostLike(7)}
+                    onComment={(comment: string) => handleFeedPostComment(7, comment)}
+                    showCommentInput={false}
                   />
                 </div>
               </div>
@@ -2120,6 +2406,391 @@ export default function App() {
                     ]}
                   />
                 </div>
+              </div>
+            </section>
+
+            {/* Profile Cards */}
+            <section className="space-y-4">
+              <h2 className="text-3xl font-bold border-b pb-2">Profile Cards</h2>
+              
+              {/* Basic Profile Card */}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Basic Profile Card</h3>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  <ProfileCard
+                    avatar={{
+                      src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face",
+                      fallback: "JD",
+                      size: "lg"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "John Doe" } },
+                      { label: "Email", value: { type: "text", value: "john.doe@example.com" } },
+                      { label: "Location", value: { type: "text", value: "San Francisco, CA" } },
+                      { label: "Department", value: { type: "tag", value: "Engineering" } }
+                    ]}
+                    actions={[
+                      { label: "View Profile", onClick: () => toast("View profile clicked") },
+                      { label: "Message", onClick: () => toast("Message clicked"), variant: "outline" }
+                    ]}
+                  />
+                  
+                  <ProfileCard
+                    avatar={{
+                      fallback: "AS",
+                      size: "xl"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "Alice Smith" } },
+                      { label: "Role", value: { type: "text", value: "Product Designer" } },
+                      { label: "Status", value: { type: "tag", value: "Available", className: "bg-green-100 text-green-800" } },
+                      { label: "Projects", value: { type: "text", value: "12 Active" } },
+                      { label: "Team", value: { type: "text", value: "Design Team" } }
+                    ]}
+                    actions={[
+                      { label: "Schedule", onClick: () => toast("Schedule clicked") }
+                    ]}
+                  />
+                </div>
+              </div>
+
+              {/* Different Layouts */}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Layout Variations</h3>
+                <div className="space-y-6">
+                  {/* Horizontal Layout */}
+                  <ProfileCard
+                    layout={{
+                      direction: "horizontal",
+                      spacing: "lg",
+                      padding: "lg",
+                      alignment: "start"
+                    }}
+                    avatar={{
+                      src: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=64&h=64&fit=crop&crop=face",
+                      fallback: "EJ",
+                      size: "xl"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "Emma Johnson" } },
+                      { label: "Role", value: { type: "text", value: "Marketing Director" } },
+                      { label: "Experience", value: { type: "text", value: "8+ years" } },
+                      { label: "Specialization", value: { type: "tag", value: "Digital Marketing" } },
+                      { label: "Team Size", value: { type: "text", value: "15 members" } }
+                    ]}
+                    actions={[
+                      { label: "Contact", onClick: () => toast("Contact clicked") },
+                      { label: "View Work", onClick: () => toast("View work clicked"), variant: "outline" }
+                    ]}
+                  />
+
+                  {/* Compact Layout */}
+                  <ProfileCard
+                    layout={{
+                      direction: "vertical",
+                      spacing: "sm",
+                      padding: "sm",
+                      alignment: "center"
+                    }}
+                    avatar={{
+                      fallback: "MR",
+                      size: "md"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "Michael Roberts" } },
+                      { label: "Role", value: { type: "text", value: "Backend Engineer" } },
+                      { label: "Skills", value: { type: "tag", value: "Node.js" } },
+                      { label: "Experience", value: { type: "text", value: "5 years" } }
+                    ]}
+                    actions={[
+                      { label: "GitHub", onClick: () => toast("GitHub clicked"), size: "sm" }
+                    ]}
+                  />
+                </div>
+              </div>
+
+              {/* Value Types Demonstration */}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Different Detail Types</h3>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <ProfileCard
+                    avatar={{
+                      fallback: "TW",
+                      size: "xl",
+                      className: "bg-gray-200 text-gray-800 !rounded-[10%]"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "Tom Wilson" } },
+                      { label: "Role", value: { type: "text", value: "Full Stack Developer" } },
+                      { label: "Email", value: { type: "text", value: "tom.wilson@company.com" } },
+                      { label: "Level", value: { type: "tag", value: "Senior", className: "bg-blue-100 text-blue-800" } },
+                      { label: "Status", value: { type: "tag", value: "On Leave", className: "bg-yellow-100 text-yellow-800" } },
+                      { 
+                        label: "Rating", 
+                        value: { 
+                          type: "custom", 
+                          component: (
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <span key={star} className="text-yellow-400">
+                                  {star <= 4 ? "★" : "☆"}
+                                </span>
+                              ))}
+                              <span className="text-sm text-muted-foreground ml-1">(4.0)</span>
+                            </div>
+                          )
+                        } 
+                      }
+                    ]}
+                  />
+                  
+                  <ProfileCard
+                    avatar={{
+                      fallback: "SL",
+                      size: "lg"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "Sarah Lee" } },
+                      { label: "Role", value: { type: "text", value: "Data Scientist" } },
+                      { label: "Publications", value: { type: "text", value: "23 papers" } },
+                      { 
+                        label: "Skills", 
+                        value: { 
+                          type: "custom", 
+                          component: (
+                            <div className="flex gap-1">
+                              {["Python", "ML", "Stats"].map((skill) => (
+                                <span key={skill} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          )
+                        } 
+                      },
+                      { 
+                        label: "Progress", 
+                        value: { 
+                          type: "custom", 
+                          component: (
+                            <div className="flex items-center gap-2">
+                              <div className="w-20 bg-gray-200 rounded-full h-2">
+                                <div className="bg-green-500 h-2 rounded-full" style={{ width: "75%" }}></div>
+                              </div>
+                              <span className="text-xs text-muted-foreground">75%</span>
+                            </div>
+                          )
+                        } 
+                      },
+                      { label: "Department", value: { type: "text", value: "Research" } }
+                    ]}
+                  />
+                </div>
+              </div>
+
+              {/* Avatar Variations */}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Avatar Variations</h3>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <ProfileCard
+                    avatar={{
+                      src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face",
+                      fallback: "SM",
+                      size: "sm"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "Small Avatar" } },
+                      { label: "Type", value: { type: "tag", value: "With Image" } }
+                    ]}
+                  />
+                  
+                  <ProfileCard
+                    avatar={{
+                      fallback: "MD",
+                      size: "md"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "Medium Avatar" } },
+                      { label: "Type", value: { type: "tag", value: "Fallback Only" } }
+                    ]}
+                  />
+                  
+                  <ProfileCard
+                    avatar={{
+                      src: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=64&h=64&fit=crop&crop=face",
+                      fallback: "LG",
+                      size: "lg"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "Large Avatar" } },
+                      { label: "Type", value: { type: "tag", value: "With Image" } }
+                    ]}
+                  />
+                  
+                  <ProfileCard
+                    avatar={{
+                      fallback: "XL",
+                      size: "xl"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "Extra Large" } },
+                      { label: "Type", value: { type: "tag", value: "Fallback Only" } }
+                    ]}
+                  />
+                </div>
+              </div>
+
+              {/* Styling Variations */}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Styling Variations</h3>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <ProfileCard
+                    styles={{
+                      card: "bg-gray-900 border-gray-700",
+                      content: "text-white",
+                      label: "text-gray-400",
+                      value: "text-white font-medium"
+                    }}
+                    avatar={{
+                      fallback: "DK",
+                      size: "lg",
+                      className: "bg-gray-800 text-white border-gray-600"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "Dark Theme" } },
+                      { label: "Style", value: { type: "text", value: "Custom styling" } },
+                      { label: "Mode", value: { type: "text", value: "Night mode" } },
+                      { label: "Theme", value: { type: "tag", value: "Dark", className: "bg-gray-700 text-gray-200" } }
+                    ]}
+                    actions={[
+                      { label: "Toggle", onClick: () => toast("Toggle theme"), className: "bg-gray-800 text-white hover:bg-gray-700" }
+                    ]}
+                  />
+
+                  <ProfileCard
+                    styles={{
+                      card: "bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200",
+                      detailsContainer: "space-y-2"
+                    }}
+                    avatar={{
+                      fallback: "CP",
+                      size: "lg",
+                      className: "bg-gradient-to-br from-purple-500 to-pink-500 text-white"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "Colorful Profile" } },
+                      { label: "Style", value: { type: "text", value: "Gradient design" } },
+                      { label: "Design", value: { type: "text", value: "Modern UI" } },
+                      { label: "Theme", value: { type: "tag", value: "Gradient", className: "bg-gradient-to-r from-purple-500 to-pink-500 text-white" } }
+                    ]}
+                    actions={[
+                      { label: "Customize", onClick: () => toast("Customize clicked"), className: "bg-purple-600 text-white hover:bg-purple-700" }
+                    ]}
+                  />
+                </div>
+              </div>
+
+              {/* Interactive Examples */}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Interactive Examples</h3>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <ProfileCard
+                    avatar={{
+                      fallback: "IA",
+                      size: "lg"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "Interactive Avatar" } },
+                      { label: "Followers", value: { type: "text", value: "1,234" } },
+                      { label: "Following", value: { type: "text", value: "567" } },
+                      { label: "Status", value: { type: "tag", value: "Active" } }
+                    ]}
+                    actions={[
+                      { 
+                        label: feedPostLikes[0] ? "Unfollow" : "Follow", 
+                        onClick: () => handleFeedPostLike(0),
+                        variant: feedPostLikes[0] ? "destructive" : "default"
+                      },
+                      { label: "Message", onClick: () => toast("Message sent"), variant: "outline" }
+                    ]}
+                  />
+
+                  <ProfileCard
+                    layout={{
+                      actionsPosition: "center"
+                    }}
+                    avatar={{
+                      fallback: "TS",
+                      size: "lg"
+                    }}
+                    details={[
+                      { label: "Name", value: { type: "text", value: "Task Manager" } },
+                      { label: "Role", value: { type: "text", value: "Productivity tools" } },
+                      { 
+                        label: "Tasks", 
+                        value: { 
+                          type: "custom", 
+                          component: (
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm">8/10</span>
+                              <div className="w-16 bg-gray-200 rounded-full h-2">
+                                <div className="bg-blue-500 h-2 rounded-full" style={{ width: "80%" }}></div>
+                              </div>
+                            </div>
+                          )
+                        } 
+                      },
+                      { label: "Priority", value: { type: "tag", value: "High", className: "bg-red-100 text-red-800" } }
+                    ]}
+                    actions={[
+                      { label: "Add Task", onClick: () => toast("Add task clicked") },
+                      { label: "View All", onClick: () => toast("View all tasks"), variant: "outline" }
+                    ]}
+                  />
+                </div>
+              </div>
+
+              {/* No Avatar Example */}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Without Avatar (Contact Information)</h3>
+                <ProfileCard
+                  header={{ title: "Contact Information" }}
+                  details={[
+                    { label: "Contact Name", value: { type: "text", value: "Miss Phillip Kim" } },
+                    { label: "Town", value: { type: "text", value: "Eastleigh" } },
+                    { label: "County", value: { type: "text", value: "Hampshire" } },
+                    { label: "Post Code", value: { type: "text", value: "SO50 7FA" } },
+                    { label: "E-Mail Address", value: { type: "text", value: "grayphite@yopmail.com" } },
+                    { label: "Telephone Mobile", value: { type: "text", value: "+44 18724786258" } }
+                  ]}
+                  actions={[
+                    { label: "Edit Information", onClick: () => toast("Edit Information clicked") }
+                  ]}
+                />
+              </div>
+
+              {/* Profile with Image Example */}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Profile with Image</h3>
+                <ProfileCard
+                  avatar={{ 
+                    src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face",
+                    fallback: "TL",
+                    size: "lg"
+                  }}
+                  details={[
+                    { label: "Name", value: { type: "text", value: "Mr Tobias Luvis" } },
+                    { label: "Reference", value: { type: "text", value: "GB-4825-2226" } },
+                    { label: "Location", value: { type: "text", value: "Demo Martial Arts Academy II" } },
+                    { label: "Gender", value: { type: "text", value: "Male" } },
+                    { label: "Groups", value: { type: "tag", value: "Adults", className: "bg-purple-500 text-white" } },
+                    { label: "Key Person", value: { type: "text", value: "Fizza Rehan" } },
+                    { label: "Allow Photography", value: { type: "text", value: "No" } }
+                  ]}
+                  actions={[
+                    { label: "Edit Profile", onClick: () => toast("Edit Profile clicked") }
+                  ]}
+                />
               </div>
             </section>
             </div>
