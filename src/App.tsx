@@ -179,9 +179,6 @@ import {
   PaginationNext,
   PaginationEllipsis,
   Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
   // Menus
   DropdownMenu,
   DropdownMenuTrigger,
@@ -1207,20 +1204,6 @@ export default function App() {
                   </PaginationContent>
                 </Pagination>
               </div>
-
-              {/* <div className="space-y-4">
-                <h3 className="text-2xl font-semibold">Tabs</h3>
-                <Tabs value={tabsValue} onValueChange={setTabsValue} className="w-[400px]">
-                  <TabsList>
-                    <TabsTrigger value="tab1">Tab 1</TabsTrigger>
-                    <TabsTrigger value="tab2">Tab 2</TabsTrigger>
-                    <TabsTrigger value="tab3">Tab 3</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="tab1">Content for Tab 1</TabsContent>
-                  <TabsContent value="tab2">Content for Tab 2</TabsContent>
-                  <TabsContent value="tab3">Content for Tab 3</TabsContent>
-                </Tabs>
-              </div> */}
             </section>
 
             <Separator />
@@ -1585,6 +1568,229 @@ export default function App() {
                   <Kbd>Shift</Kbd>
                   <Kbd>K</Kbd>
                 </KbdGroup>
+              </div>
+            </section>
+
+            <Separator />
+
+            {/* Navigation */}
+            <section className="space-y-4">
+              <h2 className="text-3xl font-bold border-b pb-2">Navigation</h2>
+              
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Tabs</h3>
+                <div className="space-y-4">
+                  <Tabs
+                    tabs={[
+                      { id: "tab1", label: "Overview" },
+                      { id: "tab2", label: "Analytics" },
+                      { id: "tab3", label: "Reports" },
+                      { id: "tab4", label: "Settings" }
+                    ]}
+                    activeTab={tabsValue}
+                    onTabChange={setTabsValue}
+                    showMobileNav={true}
+                    borderColor="#d4d4d8"
+                    activeTextColor="#000000"
+                    inactiveTextColor="#71717a"
+                    hoverBorderColor="#0000ff"
+                    mobileBorderColor="#0000ff"
+                    iconSize={20}
+                  />
+                  
+                  <div className="mt-6">
+                    {tabsValue === "tab1" && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Overview</CardTitle>
+                          <CardDescription>General overview of your dashboard</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p>This is the overview tab content. Here you can display summary information, key metrics, and important updates.</p>
+                        </CardContent>
+                      </Card>
+                    )}
+                    
+                    {tabsValue === "tab2" && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Analytics</CardTitle>
+                          <CardDescription>Detailed analytics and insights</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p>This is the analytics tab content. Display charts, graphs, and detailed analytical data here.</p>
+                        </CardContent>
+                      </Card>
+                    )}
+                    
+                    {tabsValue === "tab3" && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Reports</CardTitle>
+                          <CardDescription>Generate and view reports</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p>This is the reports tab content. Access various reports, export data, and generate custom reports.</p>
+                        </CardContent>
+                      </Card>
+                    )}
+                    
+                    {tabsValue === "tab4" && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Settings</CardTitle>
+                          <CardDescription>Configure your preferences</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p>This is the settings tab content. Manage user preferences, system settings, and configuration options.</p>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Tabs with Icons</h3>
+                <div className="space-y-4">
+                  <Tabs
+                    tabs={[
+                      { id: "home", label: "Home", icon: TrendingUp },
+                      { id: "users", label: "Users", icon: Users },
+                      { id: "alerts", label: "Alerts", icon: Bell }
+                    ]}
+                    activeTab="home"
+                    onTabChange={(tabId: string) => toast(`Switched to ${tabId} tab`)}
+                    showMobileNav={false}
+                    borderColor="#d4d4d8"
+                    activeTextColor="#000000"
+                    inactiveTextColor="#71717a"
+                    hoverBorderColor="#0000ff"
+                    activeIconColor="#0000ff"
+                    inactiveIconColor="#71717a"
+                    iconSize={20}
+                  />
+                  
+                  <Card>
+                    <CardContent className="pt-6">
+                      <p>Tabs with icons provide better visual context and improved user experience.</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Tabs with Custom Render Label</h3>
+                <div className="space-y-4">
+                  <Tabs
+                    tabs={[
+                      { 
+                        id: "custom1", 
+                        renderLabel: (
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                            <span>Active</span>
+                          </div>
+                        )
+                      },
+                      { 
+                        id: "custom2", 
+                        renderLabel: (
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                            <span>Pending</span>
+                          </div>
+                        )
+                      },
+                      { 
+                        id: "custom3", 
+                        renderLabel: (
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                            <span>Inactive</span>
+                          </div>
+                        )
+                      }
+                    ]}
+                    activeTab="custom1"
+                    onTabChange={(tabId: string) => toast(`Switched to ${tabId} tab`)}
+                    showMobileNav={false}
+                    borderColor="#d4d4d8"
+                    activeTextColor="#000000"
+                    inactiveTextColor="#71717a"
+                    hoverBorderColor="#0000ff"
+                  />
+                  
+                  <Card>
+                    <CardContent className="pt-6">
+                      <p>Tabs with custom render labels allow for complex content and styling within tab headers.</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Custom Styled Tabs</h3>
+                <div className="space-y-4">
+                  <Tabs
+                    tabs={[
+                      { id: "red", label: "Red Theme", icon: Bell },
+                      { id: "green", label: "Green Theme", icon: TrendingUp },
+                      { id: "blue", label: "Blue Theme", icon: Users }
+                    ]}
+                    activeTab="red"
+                    onTabChange={(tabId: string) => toast(`Switched to ${tabId} theme`)}
+                    showMobileNav={true}
+                    borderColor="#ef4444"
+                    activeTextColor="#dc2626"
+                    inactiveTextColor="#6b7280"
+                    hoverBorderColor="#ef4444"
+                    activeIconColor="#dc2626"
+                    inactiveIconColor="#9ca3af"
+                    mobileBorderColor="#ef4444"
+                    iconSize={24}
+                  />
+                  
+                  <Card>
+                    <CardContent className="pt-6">
+                      <p>Custom styled tabs with red theme, larger icons, and enhanced mobile navigation.</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold">Tabs with Custom Classes</h3>
+                <div className="space-y-4">
+                  <Tabs
+                    tabs={[
+                      { id: "custom1", label: "Dashboard", icon: TrendingUp },
+                      { id: "custom2", label: "Reports", icon: Bell },
+                      { id: "custom3", label: "Settings", icon: Users }
+                    ]}
+                    activeTab="custom1"
+                    onTabChange={(tabId: string) => toast(`Switched to ${tabId} tab`)}
+                    showMobileNav={true}
+                    borderColor="#6366f1"
+                    activeTextColor="#4f46e5"
+                    inactiveTextColor="#6b7280"
+                    hoverBorderColor="#6366f1"
+                    activeIconColor="#4f46e5"
+                    inactiveIconColor="#9ca3af"
+                    mobileBorderColor="#6366f1"
+                    iconSize={20}
+                    listClassName="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 shadow-lg"
+                    triggerClassName="rounded-t-lg mx-1 transition-all duration-300 hover:shadow-md"
+                    mobileClassName="bg-gradient-to-r from-indigo-500 to-purple-500"
+                    mobileButtonClassName="rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20"
+                  />
+                  
+                  <Card>
+                    <CardContent className="pt-6">
+                      <p>Tabs with custom className props demonstrating advanced styling capabilities including gradients, shadows, and backdrop effects.</p>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </section>
 
@@ -2312,55 +2518,153 @@ export default function App() {
 
               <div className="space-y-4">
                 <h3 className="text-2xl font-semibold">Timeline</h3>
-                <div className="max-w-4xl">
-                  <Timeline
-                    items={[
-                      {
-                        id: '1',
-                        title: 'Ongoing Reminder',
-                        startTime: '03:15 PM',
-                        endTime: '04:15 PM',
-                        color: '#a855f7', // lighter purple/pink
-                      },
-                      {
-                        id: '2',
-                        title: 'Yoga Session',
-                        startTime: '04:15 PM',
-                        endTime: '05:15 PM',
-                        capacity: {
-                          current: 0,
-                          max: 10,
+                <div className="space-y-6">
+                  {/* Basic Timeline Example */}
+                  <div>
+                    <h4 className="text-lg font-medium mb-3">Daily Schedule</h4>
+                    <Timeline
+                      items={[
+                        {
+                          id: '1',
+                          name: 'Morning Standup',
+                          startTime: '09:00:00',
+                          endTime: '09:30:00',
+                          type: 'session',
+                          capacity: 10,
+                          bookings: 8,
+                          date: '2024-01-15'
                         },
-                        color: '#7c3aed', // deep purple
-                      },
-                      {
-                        id: '3',
-                        title: 'Account Wide Session -- Demo',
-                        startTime: '04:00 PM',
-                        endTime: '06:00 PM',
-                        capacity: {
-                          current: 0,
-                          max: 50,
+                        {
+                          id: '2',
+                          name: 'Morning Standup 2',
+                          startTime: '09:00:00',
+                          endTime: '09:30:00',
+                          type: 'session',
+                          capacity: 10,
+                          bookings: 8,
+                          date: '2024-01-15'
                         },
-                        color: '#7c3aed', // deep purple
-                      },
-                      {
-                        id: '4',
-                        title: 'Karate',
-                        startTime: '07:04 PM',
-                        endTime: '11:00 PM',
-                        capacity: {
-                          current: 1,
-                          max: 100,
+                        {
+                          id: '3',
+                          name: 'Morning Standup 3',
+                          startTime: '09:19:00',
+                          endTime: '09:30:00',
+                          type: 'session',
+                          capacity: 10,
+                          bookings: 8,
+                          date: '2024-01-15'
                         },
-                        color: '#7c3aed', // deep purple
-                      },
-                    ]}
-                    startHour={15} // 3 PM
-                    endHour={20} // 8 PM
-                    hourFormat="12h"
-                    title="Agenda"
-                  />
+                        {
+                          id: '4',
+                          name: 'Development Sprint',
+                          startTime: '10:00:00',
+                          endTime: '12:00:00',
+                          type: 'session',
+                          capacity: 8,
+                          bookings: 5,
+                          date: '2024-01-15'
+                        },
+                        {
+                          id: '5',
+                          name: 'Lunch Break',
+                          startTime: '12:00:00',
+                          endTime: '13:00:00',
+                          type: 'reminder',
+                          date: '2024-01-15'
+                        },
+                        {
+                          id: '6',
+                          name: 'Code Review',
+                          startTime: '14:00:00',
+                          endTime: '15:00:00',
+                          type: 'session',
+                          capacity: 6,
+                          bookings: 3,
+                          date: '2024-01-15'
+                        },
+                        {
+                          id: '7',
+                          name: 'Client Meeting',
+                          startTime: '15:30:00',
+                          endTime: '16:30:00',
+                          type: 'appointment',
+                          member: {
+                            id: 'client-1',
+                            firstName: 'John',
+                            lastName: 'Smith'
+                          },
+                          date: '2024-01-15'
+                        }
+                      ]}
+                      sessionColor="#3b82f6"
+                      appointmentColor="#ef4444"
+                      reminderColor="#f59e0b"
+                      title="Today's Agenda"
+                      className="max-w-4xl"
+                    />
+                  </div>
+
+                  {/* Overlapping Events Example */}
+                  <div>
+                    <h4 className="text-lg font-medium mb-3">Multi-track Events</h4>
+                    <Timeline
+                      items={[
+                        {
+                          id: 'track1-1',
+                          name: 'Beginner Track: Introduction',
+                          startTime: '10:00:00',
+                          endTime: '11:30:00',
+                          type: 'session',
+                          capacity: 50,
+                          bookings: 45,
+                          date: '2024-01-15'
+                        },
+                        {
+                          id: 'track2-1',
+                          name: 'Advanced Track: Architecture',
+                          startTime: '10:00:00',
+                          endTime: '11:30:00',
+                          type: 'session',
+                          capacity: 25,
+                          bookings: 22,
+                          date: '2024-01-15'
+                        },
+                        {
+                          id: 'track3-1',
+                          name: 'Workshop: Hands-on Lab',
+                          startTime: '10:00:00',
+                          endTime: '12:00:00',
+                          type: 'session',
+                          capacity: 20,
+                          bookings: 18,
+                          date: '2024-01-15'
+                        },
+                        {
+                          id: 'track1-2',
+                          name: 'Beginner Track: Practical Demo',
+                          startTime: '11:30:00',
+                          endTime: '13:00:00',
+                          type: 'session',
+                          capacity: 50,
+                          bookings: 38,
+                          date: '2024-01-15'
+                        },
+                        {
+                          id: 'track2-2',
+                          name: 'Advanced Track: Performance',
+                          startTime: '11:30:00',
+                          endTime: '13:00:00',
+                          type: 'session',
+                          capacity: 25,
+                          bookings: 25,
+                          date: '2024-01-15'
+                        }
+                      ]}
+                      sessionColor="#0ea5e9"
+                      title="Parallel Sessions"
+                      className="max-w-4xl"
+                    />
+                  </div>
                 </div>
               </div>
 
